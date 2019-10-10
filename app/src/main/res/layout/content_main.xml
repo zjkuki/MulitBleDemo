@@ -35,18 +35,18 @@
             android:gravity="center"
             android:text="锁一测试"
             />
-        <Button
-            android:id="@+id/btn_locker1_connect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="连接"
-            />
         <LinearLayout
             android:id="@+id/linearlayout_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp">
 
+            <Button
+                android:id="@+id/btn_locker1_connect"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="连接"
+                />
             <Button
                 android:id="@+id/btn_locker1_cha"
                 android:layout_width="wrap_content"
@@ -55,47 +55,51 @@
                 />
             <Button
                 android:id="@+id/btn_locker1_unlock"
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:text="开锁"
                 />
             <Button
                 android:id="@+id/btn_locker1_open"
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:text="开门"
                 />
             <Button
                 android:id="@+id/btn_locker1_close"
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:text="关门"
                 />
+            <Button
+                android:id="@+id/btn_locker1_disconnect"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="断开"
+                />
         </LinearLayout>
+
         <Button
-            android:id="@+id/btn_locker1_disconnect"
+            android:id="@+id/btn_search_device"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="断开"
+            android:text="搜索设备"
             />
-
         <LinearLayout
             android:id="@+id/linearlayout_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <com.inuker.bluetooth.view.PullToRefreshFrameLayout
-                android:id="@+id/pulllayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/title"
-                custom:has_header="true"
-                custom:has_footer="false"
-                custom:has_shadow="false"
-                custom:has_divider="true"/>
         </LinearLayout>
+
+        <com.kuki.mulitbledemo.view.PullToRefreshFrameLayout
+            android:id="@+id/pulllayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/linearlayout_2"
+            custom:has_header="true"
+            custom:has_footer="false"
+            custom:has_shadow="false"
+            custom:has_divider="true"/>
     </LinearLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

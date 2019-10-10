@@ -9,7 +9,7 @@
         android:layout_height="fill_parent"
         android:drawingCacheQuality="auto" >
 
-        <com.inuker.bluetooth.view.PullRefreshListView
+        <com.kuki.mulitbledemo.view.PullRefreshListView
             android:id="@+id/timeline_list"
             style="@style/ListView"
             android:smoothScrollbar="true"

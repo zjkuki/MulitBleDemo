@@ -41,6 +41,12 @@
                 <action android:name="com.kuki.mulitbledemo.tvresult" />
             </intent-filter>
         </receiver>-->
+        <!--<activity-->
+        <!--android:name=".WaveActivity" />-->
+
+        <activity android:name=".DeviceDetailActivity" />
+
+        <activity android:name=".CharacterActivity" />
 
     </application>
 

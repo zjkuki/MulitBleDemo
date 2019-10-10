@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -39,6 +40,18 @@ public class DeviceDetailActivity extends Activity {
     private BluetoothDevice mDevice;
 
     private boolean mConnected;
+
+
+    private Handler mHandler = new Handler();
+
+    Runnable Heartbeat=new Runnable() {
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            //要做的事情
+            mHandler.postDelayed(this, 1500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

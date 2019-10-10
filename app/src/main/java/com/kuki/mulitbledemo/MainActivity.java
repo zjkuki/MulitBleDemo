@@ -1,8 +1,6 @@
 package com.kuki.mulitbledemo;
 
 import android.Manifest;
-import android.app.Notification;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,8 +22,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
 import com.inuker.bluetooth.library.connect.listener.BluetoothStateListener;
 import com.inuker.bluetooth.library.search.SearchRequest;
 import com.inuker.bluetooth.library.search.SearchResult;
@@ -41,6 +36,7 @@ import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -74,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mDevices = new ArrayList<SearchResult>();
+
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("龙科多蓝牙测试");
@@ -102,13 +100,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tv_result = (TextView) findViewById(R.id.result);
         tv_result.setMovementMethod(ScrollingMovementMethod.getInstance());
 
+        mRefreshLayout = (PullToRefreshFrameLayout) findViewById(R.id.pulllayout);
+
         mListView = mRefreshLayout.getPullToRefreshListView();
         mAdapter = new DeviceListAdapter(this);
         mListView.setAdapter(mAdapter);
 
+        mListView.setOnRefreshListener(new PullRefreshListView.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                // TODO Auto-generated method stub
+                searchDevice();
+            }
+
+        });
         BluetoothLog.v(String.format("%s onCreate", this.getClass().getSimpleName()));
 
         requestPermission();
+
+        searchDevice();
 
         ClientManager.getClient().registerBluetoothStateListener(new BluetoothStateListener() {
             @Override
@@ -214,6 +225,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }).start();
                 break;
+            case R.id.btn_search_device:
+                    searchDevice();
+                break;
         }
     }
 
@@ -316,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mListView.onRefreshComplete(true);
             mRefreshLayout.showState(AppConstants.LIST);
 
-            toolbar.setTitle(R.string.devices);
+            //toolbar.setTitle(R.string.devices);
         }
 
         @Override
@@ -326,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mListView.onRefreshComplete(true);
             mRefreshLayout.showState(AppConstants.LIST);
 
-            toolbar.setTitle(R.string.devices);
+            //toolbar.setTitle(R.string.devices);
         }
     };
 }

@@ -12,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.inuker.bluetooth.AppConstants;
-import com.inuker.bluetooth.R;
+import com.kuki.mulitbledemo.AppConstants;
+import com.kuki.mulitbledemo.R;
 
 public class PullToRefreshFrameLayout extends FrameLayout {
 	private Context mContext;
