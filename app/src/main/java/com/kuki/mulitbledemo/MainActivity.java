@@ -27,6 +27,7 @@ import com.inuker.bluetooth.library.search.SearchRequest;
 import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.search.response.SearchResponse;
 import com.inuker.bluetooth.library.utils.BluetoothLog;
+import com.kuki.mulitbledemo.lkd.BleLocker;
 import com.kuki.mulitbledemo.view.PullRefreshListView;
 import com.kuki.mulitbledemo.view.PullToRefreshFrameLayout;
 import com.yanzhenjie.permission.Action;
@@ -36,11 +37,20 @@ import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final String MAC = "D0:D3:86:72:4D:42";
+    private static final String BleService = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    private static final String BleNotifitesCharacter = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+    private static final String BleWriteCharacter = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+
     public static final int PERMISSION_LOCATION = 100;
     private static final int REQUEST_CODE_SCAN = 111;
     private String[] permissions = new String[]{
@@ -58,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnLocker1Unlock;
     private Button btnLocker1Open;
     private Button btnLocker1Close;
+    private Button btnLocker1Stop;
+    private Button btnSearchDevice;
 
     private Toolbar toolbar;
     private PullToRefreshFrameLayout mRefreshLayout;
@@ -65,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DeviceListAdapter mAdapter;
 
     private List<SearchResult> mDevices;
+
+    private boolean isScanning = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +111,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnLocker1Close = (Button) findViewById(R.id.btn_locker1_close);
         btnLocker1Close.setOnClickListener(this);
 
+        btnLocker1Stop = (Button) findViewById(R.id.btn_locker1_stop);
+        btnLocker1Stop.setOnClickListener(this);
+
+        btnSearchDevice = (Button) findViewById(R.id.btn_search_device);
+        btnSearchDevice.setOnClickListener(this);
+
+
         tv_result = (TextView) findViewById(R.id.result);
         tv_result.setMovementMethod(ScrollingMovementMethod.getInstance());
 
@@ -119,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         requestPermission();
 
-        searchDevice();
+        //searchDevice();
 
         ClientManager.getClient().registerBluetoothStateListener(new BluetoothStateListener() {
             @Override
@@ -186,6 +207,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        BleLocker bleLocker= new BleLocker(this.MAC, false, this.BleService,
+                this.BleNotifitesCharacter, this.BleWriteCharacter, "KUKIWU",800, iBleLockerCallBack);
+
         switch (v.getId()) {
             case R.id.fab:
                 AndPermission.with(this)
@@ -226,10 +250,106 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }).start();
                 break;
             case R.id.btn_search_device:
-                    searchDevice();
+                    if(!isScanning) {
+                        searchDevice();
+                    }else{
+                        ClientManager.getClient().stopSearch();
+                    }
+
+                break;
+            case R.id.btn_locker1_connect:
+                  bleLocker.connect();
+                break;
+            case R.id.btn_locker1_open:
+                  bleLocker.open();
+                break;
+            case R.id.btn_locker1_close:
+                bleLocker.close();
+                break;
+            case R.id.btn_locker1_unlock:
+                bleLocker.lock();
+                break;
+            case R.id.btn_locker1_stop:
+                bleLocker.stop();
+                break;
+            case R.id.btn_locker1_disconnect:
+                bleLocker.disconnect();
+                break;
+            case R.id.btn_locker1_cha:
+                bleLocker.changePassword("123456");
                 break;
         }
     }
+
+    BleLocker.IBleLockerListener iBleLockerCallBack = new BleLocker.IBleLockerListener() {
+        @Override
+        public void onPasswordChanged(int code, String rtvMsg) {
+            AppendText(getTime()+" 密码修改, onPasswordChanged：code="+code +" message=" + rtvMsg+"\n");
+            BluetoothLog.v(getTime()+String.format("%s onPasswordChanged", this.getClass().getSimpleName()));
+        }
+
+        @Override
+        public void onOpened(int code, String rtvMsg) {
+            AppendText(getTime()+" 功能-开 onOpened：code="+code +" message=" + rtvMsg +"\n");
+            BluetoothLog.v(getTime()+String.format("%s onOpened", this.getClass().getSimpleName()));
+        }
+
+
+        @Override
+        public void onClosed(int code, String rtvMsg) {
+            AppendText(getTime()+" 功能-关, onClosed：code="+code +" message=" + rtvMsg +"\n");
+            BluetoothLog.v(getTime()+String.format("%s onClosed", this.getClass().getSimpleName()));
+        }
+
+        @Override
+        public void onStoped(int code, String rtvMsg) {
+            AppendText(getTime()+" 功能-停 onStoped：code="+code +" message=" + rtvMsg +"\n");
+            BluetoothLog.v(getTime()+String.format("%s onStoped", this.getClass().getSimpleName()));
+        }
+
+
+        @Override
+        public void onLock(int code, String rtvMsg) {
+            AppendText(getTime()+" 功能-锁 onLock：code="+code +" message=" + rtvMsg +"\n");
+            BluetoothLog.v(getTime()+String.format("%s onLock", this.getClass().getSimpleName()));
+        }
+
+        @Override
+        public void onBleReadResponse(int code, String rtvMsg) {
+            AppendText(getTime()+" 读取返回信息 onReadResponse：code="+code +" message=" + rtvMsg +"\n");
+            BluetoothLog.v(getTime()+String.format("%s onReadResponse", this.getClass().getSimpleName()));
+        }
+
+        @Override
+        public void onBleWriteResponse(int code, String rtvMsg) {
+            //AppendText(getTime()+" 发送数据 onWriteResponse：code="+code +" message=" + rtvMsg +"\n");
+            //BluetoothLog.v(String.format("%s onWriteResponse", this.getClass().getSimpleName()));
+        }
+
+        @Override
+        public void onBleNotifyResponse(int code, String NotifyValue, String rtvMsg) {
+            AppendText(getTime()+" 设备消息 onBleNotifyResponse：code="+code +" NotifyValue="+ NotifyValue +" message=" + rtvMsg +"\n");
+            BluetoothLog.v(getTime()+String.format("%s onBleNotifyResponse", this.getClass().getSimpleName()));
+        }
+
+        @Override
+        public void onConnected(int code, String rtvMsg) {
+            AppendText(getTime()+" 连接设备，onConnected：code="+code +" message=" + rtvMsg +"\n");
+            BluetoothLog.v(getTime()+String.format("%s onStoped", this.getClass().getSimpleName()));
+        }
+
+        @Override
+        public void onDisconnected(int code, String rtvMsg) {
+            AppendText(getTime()+" 断开连接，onDisconnected：code="+code +" message=" + rtvMsg +"\n");
+            BluetoothLog.v(getTime()+String.format("%s onStoped", this.getClass().getSimpleName()));
+        }
+
+        @Override
+        public void onHeartBeatting(int code, String rtvMsg) {
+            //AppendText(getTime()+" 发送心跳，onHeartBeatting：code="+code +" message=" + rtvMsg +"\n");
+            //BluetoothLog.v(String.format("%s onHeartBeatting", this.getClass().getSimpleName()));
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -241,8 +361,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 //tv_result.setText("扫描结果为：" + content);
-                tv_result.append("扫描结果为：" + content);
-                tv_result.append("准备连接设备：" + content);
+                AppendText("扫描结果为：" + content +"\n");
+                AppendText("准备连接设备：" + content +"\n");
 
             }
         }
@@ -292,10 +412,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final SearchResponse mSearchResponse = new SearchResponse() {
         @Override
         public void onSearchStarted() {
+
+            btnSearchDevice.setText("停止扫描");
+            isScanning = true;
+
             BluetoothLog.w("MainActivity.onSearchStarted");
             mListView.onRefreshComplete(true);
             mRefreshLayout.showState(AppConstants.LIST);
-            toolbar.setTitle(R.string.string_refreshing);
+            //toolbar.setTitle(R.string.string_refreshing);
             mDevices.clear();
         }
 
@@ -330,6 +454,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mListView.onRefreshComplete(true);
             mRefreshLayout.showState(AppConstants.LIST);
 
+            btnSearchDevice.setText("扫描设备");
             //toolbar.setTitle(R.string.devices);
         }
 
@@ -340,8 +465,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mListView.onRefreshComplete(true);
             mRefreshLayout.showState(AppConstants.LIST);
 
+            btnSearchDevice.setText("扫描设备");
             //toolbar.setTitle(R.string.devices);
         }
     };
+
+    private String getTime(){
+        SimpleDateFormat sdf= new SimpleDateFormat("HH:mm:ss");
+        return sdf.format(new Date());
+    }
+
+    private  void AppendText(final String str){
+        tv_result.post(new Runnable() {
+            @Override
+            public void run() {
+                tv_result.append(str);
+                int scrollAmount = tv_result.getLayout().getLineTop(tv_result.getLineCount())
+                        - tv_result.getHeight();
+                if (scrollAmount > 0)
+                    tv_result.scrollTo(0, scrollAmount);
+                else
+                    tv_result.scrollTo(0, 0);
+            }
+        });
+    }
 }
 

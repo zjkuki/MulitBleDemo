@@ -27,6 +27,44 @@ public class StringUtils {
         }
     }
 
+    public static String asciiToString(byte[] bytes) {
+        char[] buf = new char[bytes.length];
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < buf.length; i++) {
+            buf[i] = (char) bytes[i];
+            sb.append(buf[i]);
+        }
+        return sb.toString();
+    }
+
+    public static String bytesToString(byte[] bytes) {
+        final char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            int v = bytes[i] & 0xFF;
+            hexChars[i * 2] = hexArray[v >>> 4];
+            hexChars[i * 2 + 1] = hexArray[v & 0x0F];
+
+            sb.append(hexChars[i * 2]);
+            sb.append(hexChars[i * 2 + 1]);
+            sb.append(' ');
+        }
+        return sb.toString();
+    }
+
+    private static byte[] stringToBytes(String s) {
+        byte[] buf = new byte[s.length() / 2];
+        for (int i = 0; i < buf.length; i++) {
+            try {
+                buf[i] = (byte) Integer.parseInt(s.substring(i * 2, i * 2 + 2), 16);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        return buf;
+    }
+
     public static String toHexString(byte[] bytes, String separator) {
         StringBuilder hexString = new StringBuilder();
         for (byte b : bytes) {
