@@ -14,8 +14,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.inuker.bluetooth.R;
-import com.inuker.bluetooth.StringUtils;
+import com.kuki.mulitbledemo.R;
+import com.kuki.mulitbledemo.StringUtils;
 
 public class PullHeadView extends ViewGroup{
 	private final static int UPDATING_IDLE = 0;
