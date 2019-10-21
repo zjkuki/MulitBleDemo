@@ -46,7 +46,7 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String MAC = "D0:D3:86:72:4D:42";
+    private static final String MAC = "D1:6B:88:46:E0:A9";
     private static final String BleService = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
     private static final String BleNotifitesCharacter = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
     private static final String BleWriteCharacter = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnLocker1Close;
     private Button btnLocker1Stop;
     private Button btnSearchDevice;
+    private Button btnDeviceStatus;
 
     private Toolbar toolbar;
     private PullToRefreshFrameLayout mRefreshLayout;
@@ -117,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnSearchDevice = (Button) findViewById(R.id.btn_search_device);
         btnSearchDevice.setOnClickListener(this);
 
+        btnDeviceStatus = (Button) findViewById(R.id.btn_device_status);
+        btnDeviceStatus.setOnClickListener(this);
 
         tv_result = (TextView) findViewById(R.id.result);
         tv_result.setMovementMethod(ScrollingMovementMethod.getInstance());
@@ -208,8 +211,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         BleLocker bleLocker= new BleLocker(this.MAC, false, this.BleService,
-                this.BleNotifitesCharacter, this.BleWriteCharacter, "KUKIWU",800, iBleLockerCallBack);
+                this.BleNotifitesCharacter, this.BleWriteCharacter, "LKD.CN",800, new BleLockerCallBack(this,tv_result));
 
+        bleLocker.setmNoRssi(true);
         switch (v.getId()) {
             case R.id.fab:
                 AndPermission.with(this)
@@ -278,93 +282,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_locker1_cha:
                 bleLocker.changePassword("123456");
                 break;
-        }
-    }
-
-    BleLocker.IBleLockerListener iBleLockerCallBack = new BleLocker.IBleLockerListener() {
-        @Override
-        public void onPasswordChanged(int code, String rtvMsg) {
-            AppendText(getTime()+" 密码修改, onPasswordChanged：code="+code +" message=" + rtvMsg+"\n");
-            BluetoothLog.v(getTime()+String.format("%s onPasswordChanged", this.getClass().getSimpleName()));
-        }
-
-        @Override
-        public void onOpened(int code, String rtvMsg) {
-            AppendText(getTime()+" 功能-开 onOpened：code="+code +" message=" + rtvMsg +"\n");
-            BluetoothLog.v(getTime()+String.format("%s onOpened", this.getClass().getSimpleName()));
-        }
-
-
-        @Override
-        public void onClosed(int code, String rtvMsg) {
-            AppendText(getTime()+" 功能-关, onClosed：code="+code +" message=" + rtvMsg +"\n");
-            BluetoothLog.v(getTime()+String.format("%s onClosed", this.getClass().getSimpleName()));
-        }
-
-        @Override
-        public void onStoped(int code, String rtvMsg) {
-            AppendText(getTime()+" 功能-停 onStoped：code="+code +" message=" + rtvMsg +"\n");
-            BluetoothLog.v(getTime()+String.format("%s onStoped", this.getClass().getSimpleName()));
-        }
-
-
-        @Override
-        public void onLock(int code, String rtvMsg) {
-            AppendText(getTime()+" 功能-锁 onLock：code="+code +" message=" + rtvMsg +"\n");
-            BluetoothLog.v(getTime()+String.format("%s onLock", this.getClass().getSimpleName()));
-        }
-
-        @Override
-        public void onBleReadResponse(int code, String rtvMsg) {
-            AppendText(getTime()+" 读取返回信息 onReadResponse：code="+code +" message=" + rtvMsg +"\n");
-            BluetoothLog.v(getTime()+String.format("%s onReadResponse", this.getClass().getSimpleName()));
-        }
-
-        @Override
-        public void onBleWriteResponse(int code, String rtvMsg) {
-            //AppendText(getTime()+" 发送数据 onWriteResponse：code="+code +" message=" + rtvMsg +"\n");
-            //BluetoothLog.v(String.format("%s onWriteResponse", this.getClass().getSimpleName()));
-        }
-
-        @Override
-        public void onBleNotifyResponse(int code, String NotifyValue, String rtvMsg) {
-            AppendText(getTime()+" 设备消息 onBleNotifyResponse：code="+code +" NotifyValue="+ NotifyValue +" message=" + rtvMsg +"\n");
-            BluetoothLog.v(getTime()+String.format("%s onBleNotifyResponse", this.getClass().getSimpleName()));
-        }
-
-        @Override
-        public void onConnected(int code, String rtvMsg) {
-            AppendText(getTime()+" 连接设备，onConnected：code="+code +" message=" + rtvMsg +"\n");
-            BluetoothLog.v(getTime()+String.format("%s onStoped", this.getClass().getSimpleName()));
-        }
-
-        @Override
-        public void onDisconnected(int code, String rtvMsg) {
-            AppendText(getTime()+" 断开连接，onDisconnected：code="+code +" message=" + rtvMsg +"\n");
-            BluetoothLog.v(getTime()+String.format("%s onStoped", this.getClass().getSimpleName()));
-        }
-
-        @Override
-        public void onHeartBeatting(int code, String rtvMsg) {
-            //AppendText(getTime()+" 发送心跳，onHeartBeatting：code="+code +" message=" + rtvMsg +"\n");
-            //BluetoothLog.v(String.format("%s onHeartBeatting", this.getClass().getSimpleName()));
-        }
-    };
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // 扫描二维码/条码回传
-        if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
-            if (data != null) {
-
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
-                //tv_result.setText("扫描结果为：" + content);
-                AppendText("扫描结果为：" + content +"\n");
-                AppendText("准备连接设备：" + content +"\n");
-
-            }
+            case R.id.btn_device_status:
+                bleLocker.sta();
+                break;
         }
     }
 

@@ -86,17 +86,23 @@
                 />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_search_device"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="搜索设备"
-            />
         <LinearLayout
             android:id="@+id/linearlayout_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/btn_search_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="搜索设备"
+                />
+            <Button
+                android:id="@+id/btn_device_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="查询设备"
+                />
         </LinearLayout>
 
         <com.kuki.mulitbledemo.view.PullToRefreshFrameLayout
