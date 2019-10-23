@@ -22,8 +22,8 @@ import java.util.List;
 public class DeviceListAdapter extends BaseAdapter implements Comparator<SearchResult> {
 
     private Context mContext;
-
     private List<SearchResult> mDataList;
+    private OnClickListener onClickListener;
 
     public DeviceListAdapter(Context context) {
         mContext = context;
@@ -36,6 +36,11 @@ public class DeviceListAdapter extends BaseAdapter implements Comparator<SearchR
         Collections.sort(mDataList, this);
         notifyDataSetChanged();
     }
+
+    public void setOnItemClickListener(OnClickListener clickListener) {
+        this.onClickListener = clickListener;
+    }
+
 
     @Override
     public int getCount() {
@@ -95,6 +100,8 @@ public class DeviceListAdapter extends BaseAdapter implements Comparator<SearchR
 
             @Override
             public void onClick(View v) {
+                if (onClickListener != null) onClickListener.onItemClick( result );
+
                 Intent intent = new Intent();
                 intent.setClass(mContext, DeviceDetailActivity.class);
                 intent.putExtra("mac", result.getAddress());
@@ -103,5 +110,9 @@ public class DeviceListAdapter extends BaseAdapter implements Comparator<SearchR
         });
 
         return convertView;
+    }
+
+    public interface OnClickListener {
+        void onItemClick(SearchResult itemBle);
     }
 }

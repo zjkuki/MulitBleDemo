@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:context=".MainActivityWifi"
+    tools:showIn="@layout/activity_main_wifi">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="锁一测试"
+            android:text="wifi板一测试"
             />
         <LinearLayout
             android:id="@+id/linearlayout_3"
@@ -43,33 +43,33 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_mac"
+                android:id="@+id/tv_mqtt_server"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:padding="8dp"
                 android:singleLine="false"
                 android:textSize="12dp"
-                android:text="MAC地址：" />
+                android:text="MQTT服务器：" />
             <EditText
-                android:id="@+id/edt_mac"
+                android:id="@+id/edt_mqtt_topic"
                 android:layout_marginRight="10dp"
                 android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:textSize="12dp" />
 
             <TextView
-                android:id="@+id/tv_passwd"
+                android:id="@+id/tv_mqtt_topic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:padding="8dp"
                 android:singleLine="false"
                 android:textSize="12dp"
-                android:text="密码："/>
+                android:text="主题："/>
 
             <EditText
-                android:id="@+id/edt_passwd"
+                android:id="@+id/edt_mqtt_server"
                 android:layout_marginRight="10dp"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
@@ -143,10 +143,16 @@
                 android:text="查询设备"
                 />
             <Button
-                android:id="@+id/btn_device_wifi"
+                android:id="@+id/btn_device_wifi_setup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="WIFI测试版"
+                android:text="配网"
+                />
+            <Button
+                android:id="@+id/btn_device_ble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="蓝牙测试"
                 />
         </LinearLayout>
 

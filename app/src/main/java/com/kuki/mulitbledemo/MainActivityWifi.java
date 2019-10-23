@@ -1,7 +1,6 @@
 package com.kuki.mulitbledemo;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,9 +13,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,7 +27,6 @@ import com.inuker.bluetooth.library.search.SearchRequest;
 import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.search.response.SearchResponse;
 import com.inuker.bluetooth.library.utils.BluetoothLog;
-import com.kuki.mulitbledemo.lkd.BleLocker;
 import com.kuki.mulitbledemo.view.PullRefreshListView;
 import com.kuki.mulitbledemo.view.PullToRefreshFrameLayout;
 import com.yanzhenjie.permission.Action;
@@ -44,15 +40,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, DeviceListAdapter.OnClickListener {
+public class MainActivityWifi extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String MAC = "D1:6B:88:46:E0:A9";
-    private static final String BleService = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
-    private static final String BleNotifitesCharacter = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
-    private static final String BleWriteCharacter = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
 
     public static final int PERMISSION_LOCATION = 100;
     private static final int REQUEST_CODE_SCAN = 111;
@@ -65,9 +56,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private FloatingActionButton fab;
     private TextView tv_result;
-    private EditText edt_mac;
-    private EditText edt_passwd;
-
     private Button btnLocker1Connect;
     private Button btnLocker1Disconnect;
     private Button btnLocker1ChangePassword;
@@ -77,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnLocker1Stop;
     private Button btnSearchDevice;
     private Button btnDeviceStatus;
-    private Button btnDeviceWifi;
+    private Button btnDeviceBle;
 
     private Toolbar toolbar;
     private PullToRefreshFrameLayout mRefreshLayout;
@@ -90,13 +78,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_wifi);
 
         mDevices = new ArrayList<SearchResult>();
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("龙科多蓝牙测试");
+        toolbar.setTitle("龙科多wifi测试");
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
@@ -128,33 +116,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnDeviceStatus = (Button) findViewById(R.id.btn_device_status);
         btnDeviceStatus.setOnClickListener(this);
 
-        btnDeviceWifi = (Button) findViewById(R.id.btn_device_wifi);
-        btnDeviceWifi.setOnClickListener(this);
+        btnDeviceBle = (Button) findViewById(R.id.btn_device_ble);
+        btnDeviceBle.setOnClickListener(this);
 
         tv_result = (TextView) findViewById(R.id.result);
         tv_result.setMovementMethod(ScrollingMovementMethod.getInstance());
 
-        edt_mac = (EditText) findViewById(R.id.edt_mac);
-        edt_passwd = (EditText) findViewById(R.id.edt_passwd);
-        edt_passwd.setText("LKD.CN");
-
-        mAdapter = new DeviceListAdapter(this);
-        mAdapter.setOnItemClickListener(this);
-
         mRefreshLayout = (PullToRefreshFrameLayout) findViewById(R.id.pulllayout);
+
         mListView = mRefreshLayout.getPullToRefreshListView();
+        mAdapter = new DeviceListAdapter(this);
         mListView.setAdapter(mAdapter);
+
         mListView.setOnRefreshListener(new PullRefreshListView.OnRefreshListener() {
 
             @Override
             public void onRefresh() {
                 // TODO Auto-generated method stub
-                searchDevice();
+                
             }
 
         });
-
-
         BluetoothLog.v(String.format("%s onCreate", this.getClass().getSimpleName()));
 
         requestPermission();
@@ -190,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (requestCode) {
             case PERMISSION_LOCATION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (Build.VERSION.SDK_INT >= 23 && !isLocationOpen(MainActivity.this)) {
+                    if (Build.VERSION.SDK_INT >= 23 && !isLocationOpen(MainActivityWifi.this)) {
                         Intent enableLocate = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(enableLocate);
                     }
@@ -226,10 +208,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        BleLocker bleLocker= new BleLocker(edt_mac.getText().toString(), false, this.BleService,
-                this.BleNotifitesCharacter, this.BleWriteCharacter, edt_passwd.getText().toString(),800, new BleLockerCallBack(this,tv_result));
 
-        bleLocker.setmNoRssi(true);
+
         switch (v.getId()) {
             case R.id.fab:
                 AndPermission.with(this)
@@ -237,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .onGranted(new Action() {
                             @Override
                             public void onAction(List<String> permissions) {
-                                Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+                                Intent intent = new Intent(MainActivityWifi.this, CaptureActivity.class);
                                 /*ZxingConfig是配置类
                                  *可以设置是否显示底部布局，闪光灯，相册，
                                  * 是否播放提示音  震动
@@ -265,46 +245,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                 startActivity(intent);
 
-                                Toast.makeText(MainActivity.this, "没有权限无法扫描呦", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivityWifi.this, "没有权限无法扫描呦", Toast.LENGTH_LONG).show();
                             }
                         }).start();
                 break;
             case R.id.btn_search_device:
                     if(!isScanning) {
-                        searchDevice();
+
                     }else{
-                        ClientManager.getClient().stopSearch();
+
                     }
 
                 break;
             case R.id.btn_locker1_connect:
-                  bleLocker.connect();
+
                 break;
             case R.id.btn_locker1_open:
-                  bleLocker.open();
+
                 break;
             case R.id.btn_locker1_close:
-                bleLocker.close();
+
                 break;
             case R.id.btn_locker1_unlock:
-                bleLocker.lock();
+
                 break;
             case R.id.btn_locker1_stop:
-                bleLocker.stop();
+
                 break;
             case R.id.btn_locker1_disconnect:
-                bleLocker.disconnect();
+
                 break;
             case R.id.btn_locker1_cha:
-                bleLocker.changePassword("123456");
+
                 break;
             case R.id.btn_device_status:
-                bleLocker.sta();
+
                 break;
-            case R.id.btn_device_wifi:
-                Intent intent = new Intent(this, MainActivityWifi.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+            case R.id.btn_device_ble:
+                finish();
                 break;
         }
     }
@@ -339,77 +317,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         BluetoothLog.v(String.format("%s onDestroy", this.getClass().getSimpleName()));
     }
 
-    /**
-     * -----------------
-     * 搜索蓝牙设备
-     */
-    private void searchDevice() {
-        SearchRequest request = new SearchRequest.Builder()
-                .searchBluetoothLeDevice(5000, 2).build();
-
-        ClientManager.getClient().search(request, mSearchResponse);
-    }
-
-    private final SearchResponse mSearchResponse = new SearchResponse() {
-        @Override
-        public void onSearchStarted() {
-
-            btnSearchDevice.setText("停止扫描");
-            isScanning = true;
-
-            BluetoothLog.w("MainActivity.onSearchStarted");
-            mListView.onRefreshComplete(true);
-            mRefreshLayout.showState(AppConstants.LIST);
-            //toolbar.setTitle(R.string.string_refreshing);
-            mDevices.clear();
-        }
-
-        @Override
-        public void onDeviceFounded(SearchResult device) {
-//            BluetoothLog.w("MainActivity.onDeviceFounded " + device.device.getAddress());
-            if (!mDevices.contains(device)) {
-                mDevices.add(device);
-                mAdapter.setDataList(mDevices);
-
-//                Beacon beacon = new Beacon(device.scanRecord);
-//                BluetoothLog.v(String.format("beacon for %s\n%s", device.getAddress(), beacon.toString()));
-
-//                BeaconItem beaconItem = null;
-//                BeaconParser beaconParser = new BeaconParser(beaconItem);
-//                int firstByte = beaconParser.readByte(); // 读取第1个字节
-//                int secondByte = beaconParser.readByte(); // 读取第2个字节
-//                int productId = beaconParser.readShort(); // 读取第3,4个字节
-//                boolean bit1 = beaconParser.getBit(firstByte, 0); // 获取第1字节的第1bit
-//                boolean bit2 = beaconParser.getBit(firstByte, 1); // 获取第1字节的第2bit
-//                beaconParser.setPosition(0); // 将读取起点设置到第1字节处
-            }
-
-            if (mDevices.size() > 0) {
-                mRefreshLayout.showState(AppConstants.LIST);
-            }
-        }
-
-        @Override
-        public void onSearchStopped() {
-            BluetoothLog.w("MainActivity.onSearchStopped");
-            mListView.onRefreshComplete(true);
-            mRefreshLayout.showState(AppConstants.LIST);
-
-            btnSearchDevice.setText("扫描设备");
-            //toolbar.setTitle(R.string.devices);
-        }
-
-        @Override
-        public void onSearchCanceled() {
-            BluetoothLog.w("MainActivity.onSearchCanceled");
-
-            mListView.onRefreshComplete(true);
-            mRefreshLayout.showState(AppConstants.LIST);
-
-            btnSearchDevice.setText("扫描设备");
-            //toolbar.setTitle(R.string.devices);
-        }
-    };
 
     private String getTime(){
         SimpleDateFormat sdf= new SimpleDateFormat("HH:mm:ss");
@@ -429,11 +336,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     tv_result.scrollTo(0, 0);
             }
         });
-    }
-
-    @Override
-    public void onItemClick(SearchResult itemBle) {
-        edt_mac.setText(itemBle.getAddress().toString());
     }
 }
 

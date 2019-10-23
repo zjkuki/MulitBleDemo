@@ -33,6 +33,8 @@ dependencies {
     /*添加依赖*/
     implementation 'com.github.yuzhiqiang1993:zxing:2.2.1'
     implementation 'com.yanzhenjie:permission:2.0.0-rc4'
+
+    implementation 'io.fogcloud.sdk:mqtt:0.0.3'
     //implementation 'com.inuker.bluetooth:library:1.4.0'
     //implementation project(path: ':library')
 }
