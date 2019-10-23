@@ -133,7 +133,7 @@ public class MainActivityWifi extends AppCompatActivity implements View.OnClickL
             @Override
             public void onRefresh() {
                 // TODO Auto-generated method stub
-                
+
             }
 
         });
