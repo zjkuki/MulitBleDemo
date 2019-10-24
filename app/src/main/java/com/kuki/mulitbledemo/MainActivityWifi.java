@@ -282,6 +282,9 @@ public class MainActivityWifi extends AppCompatActivity implements View.OnClickL
 
                 break;
             case R.id.btn_device_ble:
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 finish();
                 break;
         }

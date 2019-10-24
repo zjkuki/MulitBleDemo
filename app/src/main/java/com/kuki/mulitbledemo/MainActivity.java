@@ -31,6 +31,7 @@ import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.search.response.SearchResponse;
 import com.inuker.bluetooth.library.utils.BluetoothLog;
 import com.kuki.mulitbledemo.lkd.BleLocker;
+import com.kuki.mulitbledemo.lkd.Bluetooth;
 import com.kuki.mulitbledemo.view.PullRefreshListView;
 import com.kuki.mulitbledemo.view.PullToRefreshFrameLayout;
 import com.yanzhenjie.permission.Action;
@@ -226,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        BleLocker bleLocker= new BleLocker(edt_mac.getText().toString(), false, this.BleService,
+        final BleLocker bleLocker= new BleLocker(edt_mac.getText().toString(), false, this.BleService,
                 this.BleNotifitesCharacter, this.BleWriteCharacter, edt_passwd.getText().toString(),800, new BleLockerCallBack(this,tv_result));
 
         bleLocker.setmNoRssi(true);
@@ -278,7 +279,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
             case R.id.btn_locker1_connect:
-                  bleLocker.connect();
+                  bleLocker.connect(new BleLocker.IonCheckOnlineCallBack() {
+                      @Override
+                      public void onSuccess(Bluetooth bluetooth) {
+                          BluetoothLog.v("设备"+bluetooth.name+"在线");
+                          bleLocker.disconnect();
+                      }
+
+                      @Override
+                      public void onFail(Bluetooth bluetooth) {
+                          BluetoothLog.v("设备"+bluetooth.name+"离线");
+                      }
+                  });
                 break;
             case R.id.btn_locker1_open:
                   bleLocker.open();
@@ -305,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent = new Intent(this, MainActivityWifi.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
                 break;
         }
     }
