@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                       @Override
                       public void onSuccess(Bluetooth bluetooth) {
                           BluetoothLog.v("设备"+bluetooth.name+"在线");
-                          bleLocker.disconnect();
+                          //bleLocker.disconnect();
                       }
 
                       @Override
