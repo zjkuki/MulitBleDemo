@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -27,6 +29,7 @@ import com.inuker.bluetooth.library.search.SearchRequest;
 import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.search.response.SearchResponse;
 import com.inuker.bluetooth.library.utils.BluetoothLog;
+import com.kuki.mulitbledemo.lkd.WifiRemoterBoard;
 import com.kuki.mulitbledemo.view.PullRefreshListView;
 import com.kuki.mulitbledemo.view.PullToRefreshFrameLayout;
 import com.yanzhenjie.permission.Action;
@@ -36,10 +39,15 @@ import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
+import org.json.JSONArray;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import io.fogcloud.sdk.mdns.api.MDNS;
+import io.fogcloud.sdk.mdns.helper.SearchDeviceCallBack;
 
 
 public class MainActivityWifi extends AppCompatActivity implements View.OnClickListener {
@@ -66,21 +74,34 @@ public class MainActivityWifi extends AppCompatActivity implements View.OnClickL
     private Button btnSearchDevice;
     private Button btnDeviceStatus;
     private Button btnDeviceBle;
+    private Button btnDeviceWifiSetup;
 
     private Toolbar toolbar;
     private PullToRefreshFrameLayout mRefreshLayout;
     private PullRefreshListView mListView;
     private DeviceListAdapter mAdapter;
 
-    private List<SearchResult> mDevices;
+    private List<WifiRemoterBoard> mDevices;
+
+    private MDNS mdns;
 
     private boolean isScanning = false;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==100 && resultCode == 1001){
+
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wifi);
 
-        mDevices = new ArrayList<SearchResult>();
+        mDevices = new ArrayList<WifiRemoterBoard>();
+        mdns = new MDNS(this);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -118,6 +139,9 @@ public class MainActivityWifi extends AppCompatActivity implements View.OnClickL
 
         btnDeviceBle = (Button) findViewById(R.id.btn_device_ble);
         btnDeviceBle.setOnClickListener(this);
+
+        btnDeviceWifiSetup = (Button) findViewById(R.id.btn_device_wifi_setup);
+        btnDeviceWifiSetup.setOnClickListener(this);
 
         tv_result = (TextView) findViewById(R.id.result);
         tv_result.setMovementMethod(ScrollingMovementMethod.getInstance());
@@ -251,9 +275,46 @@ public class MainActivityWifi extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btn_search_device:
                     if(!isScanning) {
+                        btnSearchDevice.setText("停止扫描");
+                        isScanning = true;
+                        mdns.startSearchDevices("_easylink._tcp.local.", new SearchDeviceCallBack() {
+                            @Override
+                            public void onSuccess(int code, String message) {
+                                super.onSuccess(code, message);
+                                Log.d("---mdns---", message);
+                                AppendText("---mdns---\n"+ message);
+                            }
 
+                            @Override
+                            public void onFailure(int code, String message) {
+                                super.onFailure(code, message);
+                                Log.d("---mdns---", message);
+                                AppendText("---mdns---\n"+ message);
+                            }
+
+                            @Override
+                            public void onDevicesFind(int code, JSONArray deviceStatus) {
+                                super.onDevicesFind(code, deviceStatus);
+                                if (!deviceStatus.equals("")) {
+                                    Log.d("---mdns---", deviceStatus.toString());
+                                    AppendText("---mdns---\n"+ deviceStatus);
+                                }
+                            }
+                        });
                     }else{
-
+                        btnSearchDevice.setText("扫描设备");
+                        isScanning = false;
+                        mdns.stopSearchDevices(new SearchDeviceCallBack() {
+                            public void onSuccess(int code, String message) {
+                                Log.d("---mdns---", message);
+                                AppendText("---mdns---\n"+ message);
+                            }
+                            @Override
+                            public void onFailure(int code, String message) {
+                                Log.d("---mdns---", message);
+                                AppendText("---mdns---\n"+ message);
+                            }
+                        });
                     }
 
                 break;
@@ -283,6 +344,11 @@ public class MainActivityWifi extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btn_device_ble:
                 finish();
+                break;
+            case R.id.btn_device_wifi_setup:
+                Intent intent = new Intent(this, WifiConfigActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivityForResult(intent, 100);
                 break;
         }
     }

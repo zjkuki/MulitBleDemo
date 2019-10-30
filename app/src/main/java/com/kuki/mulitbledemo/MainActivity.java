@@ -31,6 +31,7 @@ import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.search.response.SearchResponse;
 import com.inuker.bluetooth.library.utils.BluetoothLog;
 import com.kuki.mulitbledemo.lkd.BleLocker;
+import com.kuki.mulitbledemo.lkd.WifiRemoterBoard;
 import com.kuki.mulitbledemo.view.PullRefreshListView;
 import com.kuki.mulitbledemo.view.PullToRefreshFrameLayout;
 import com.yanzhenjie.permission.Action;
@@ -434,6 +435,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onItemClick(SearchResult itemBle) {
         edt_mac.setText(itemBle.getAddress().toString());
+    }
+
+    @Override
+    public void onItemClick(WifiRemoterBoard itemWifiRemoter) {
+        edt_mac.setText(itemWifiRemoter.getWifiRemoter().mac);
     }
 }
 

@@ -37,4 +37,7 @@ dependencies {
     implementation 'io.fogcloud.sdk:mqtt:0.0.3'
     //implementation 'com.inuker.bluetooth:library:1.4.0'
     //implementation project(path: ':library')
+    // easylink
+    implementation 'io.fogcloud.sdk:easylinkv3:0.1.5'
+    implementation 'io.fogcloud.sdk:mdns:0.0.3'
 }

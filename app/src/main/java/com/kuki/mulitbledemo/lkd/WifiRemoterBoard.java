@@ -7,6 +7,9 @@ import android.util.Log;
 
 import com.kuki.mulitbledemo.WiFiRemoterCallBack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.fogcloud.sdk.mqtt.api.MQTT;
 import io.fogcloud.sdk.mqtt.helper.ListenDeviceCallBack;
 import io.fogcloud.sdk.mqtt.helper.ListenDeviceParams;
@@ -140,6 +143,25 @@ public class WifiRemoterBoard {
         elhandler.sendMessage(msg);
     }
 
+    public boolean addWifiRemoteLocker(WifiRemoteLocker wifiRemoteLocker){
+        if(mWifiRemoter.Lockers == null){
+            mWifiRemoter.Lockers = new ArrayList<WifiRemoteLocker>();
+        }
+        return mWifiRemoter.Lockers.add(wifiRemoteLocker);
+    }
+
+    public boolean removeWifiRemoteLocker(WifiRemoteLocker wifiRemoteLocker){
+        if(mWifiRemoter.Lockers!=null && mWifiRemoter.Lockers.size()>0){
+            return mWifiRemoter.Lockers.remove(wifiRemoteLocker);
+        }else{
+            return false;
+        }
+    }
+
+    public int getWifiRemoteLockersCount() {
+        return getWifiRemoter().Lockers.size();
+    }
+
     /**
      * 监听配网时候调用接口的log，并显示在activity上
      */
@@ -168,21 +190,11 @@ public class WifiRemoterBoard {
 
         void onOpened(Bluetooth bluetooth, BleLockerStatus status);
 
-        void onBleReadResponse(Bluetooth bluetooth, byte[] data, BleLockerStatus status);
-
-        void onBleWriteResponse(Bluetooth bluetooth, BleLockerStatus status);
-
-        void onBleNotifyResponse(Bluetooth bluetooth, String NotifyValue, BleLockerStatus status);
-
         void onConnected(Bluetooth bluetooth, BleLockerStatus status);
 
         void onDisconnected(Bluetooth bluetooth,BleLockerStatus status);
 
-        void onHeartBeatting(Bluetooth bluetooth, BleLockerStatus status);
-
         void onReday(Bluetooth bluetooth, BleLockerStatus status);
-
-        void onGetRssi(Bluetooth bluetooth, int Rssi, BleLockerStatus status);
 
         void onPasswdError(Bluetooth bluetooth, BleLockerStatus status);
 
