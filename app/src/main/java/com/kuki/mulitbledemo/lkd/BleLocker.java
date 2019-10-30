@@ -31,6 +31,8 @@ import static java.security.CryptoPrimitive.MAC;
 public class BleLocker {
     private IBleLockerListener mIBleLockerListener;
 
+    private IonCheckOnlineCallBack OnCheckOnlineCallBack;
+
     public void setBleLockerCallBack(IBleLockerListener iBleLockerListener){
         this.mIBleLockerListener = iBleLockerListener;
     }
@@ -225,7 +227,11 @@ public class BleLocker {
             }
         }
     };
+
     public void connect(){
+        this.connect(null);
+    }
+    public void connect(final IonCheckOnlineCallBack onCheckOnlineCallBack){
         mIsReday=false;
         BluetoothLog.v(String.format("onBluetooth Connecting... %s", mMac));
 
@@ -244,6 +250,9 @@ public class BleLocker {
                 BluetoothLog.v(String.format("profile:\n%s", profile));
 
                 if (code == REQUEST_SUCCESS) {
+                    if(onCheckOnlineCallBack!=null){
+                        onCheckOnlineCallBack.onSuccess(mBluetooth);
+                    }
                     //mAdapter.setGattProfile(profile);
                     mBleGattProfile = profile;
                     BluetoothLog.v(String.format("mBleGattProfile:\n%s", mBleGattProfile));
@@ -259,6 +268,10 @@ public class BleLocker {
                         if(!mNoRssi) {
                             mHandler.postDelayed(GetBluetoothRssi, 800);//每n秒执行一次runnable.
                         }
+                    }
+                }else{
+                    if(onCheckOnlineCallBack!=null){
+                        onCheckOnlineCallBack.onFail(mBluetooth);
                     }
                 }
             }
@@ -338,6 +351,7 @@ public class BleLocker {
                     content.getBytes(), mWriteRsp);
         }else{
             BluetoothLog.v(String.format("设备未连接"));
+            disconnect();
         }
     }
 
@@ -507,6 +521,11 @@ public class BleLocker {
         }
     };
 
+
+    public interface IonCheckOnlineCallBack {
+        void onSuccess(Bluetooth bluetooth);
+        void onFail(Bluetooth bluetooth);
+    }
 
     public interface IBleLockerListener {
         void onPasswordChanged(Bluetooth bluetooth, BleLockerStatus status);
